@@ -1,25 +1,35 @@
 Piyo Camera Height Fix
-Short description  
-Open source script to correct camera height for child peds. Available publicly on GitHub and in the Piyo Store Discord — free for anyone to use.
+
+Open source script to correct camera height for child peds. Free to use and available on GitHub and the Piyo Store. Place fxmanifest.lua and ped_config.lua in the resource root and update the ped name in PED_MODEL_NAME.
+
+Files included
+-fxmanifest.lua
+-ped_config.lua
 
 Installation
-Drop the file into your mod/server root folder.
+Copy fxmanifest.lua and ped_config.lua to the resource root.
+Open ped_config.lua and edit the line below, replacing the example with the exact ped name used on your server:
 
-Open the file and rename the ped identifier to match your ped name.
+.lua
+local PED_MODEL_NAME = "rename"
+Save the files.
 
-Save and restart the server/game.
+Restart the resource or the server.
 
-Support
-Free installation help available. Open a ticket in the Piyo Store Discord and we’ll assist. https://discord.gg/Nc6XjRFBnw
+Configuration
+To fine tune the camera, edit the values in CAM_SETTINGS_PED and CAM_SETTINGS_VEHICLE inside ped_config.lua.
+
+The script automatically detects whether the player is on foot or in a vehicle and applies the corresponding settings.
 
 Usage rules
-Open source: the script is public and available on all platforms.
+Open source: the script is public and accessible to anyone.
 
 Do not sell or monetize this script. Do not claim it as your own work.
 
-The distributed file is encrypted; copies cannot be revoked once saved.
+Misuse may result in the responsible account being added to a community blacklist and losing support privileges.
 
-If misuse is detected, the responsible account may be added to our community blacklist and lose support privileges.
+Support and license
+Free support: open a ticket in the Piyo Store Discord: https://discord.gg/Nc6XjRFBnw.
 
-License
-This project is open source. Include your preferred OSS license file (for example MIT or GPL) in the repo.
+Final note  
+Place both files in the resource root, update PED_MODEL_NAME, and restart the resource to apply the camera correction.
