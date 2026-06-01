@@ -11,7 +11,7 @@ Copy fxmanifest.lua and ped_config.lua to the resource root.
 Open ped_config.lua and edit the line below, replacing the example with the exact ped name used on your server:
 
 .lua
-local PED_MODEL_NAME = "rename"
+local PED_MODEL_NAME = "ped_name"
 Save the files.
 
 Restart the resource or the server.
