@@ -10,7 +10,7 @@ Open the file and rename the ped identifier to match your ped name.
 Save and restart the server/game.
 
 Support
-Free installation help available. Open a ticket in the Piyo Store Discord and we’ll assist.
+Free installation help available. Open a ticket in the Piyo Store Discord and we’ll assist. https://discord.gg/Nc6XjRFBnw
 
 Usage rules
 Open source: the script is public and available on all platforms.
