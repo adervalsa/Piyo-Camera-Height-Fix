@@ -1,1 +1,137 @@
-local a="piyo_ffx_dhara"local b=GetHashKey(a)local c={distance=2.5,close=1.5,height=-0.1,close_h=-0.1,fov=70.0}local d={distance=4.5,close=2.5,height=1.0,close_h=0.8}local e,f=nil,false local function g()return GetEntityModel(PlayerPedId())==b end local function h()if not e or not DoesCamExist(e)then e=CreateCam("DEFAULT_SCRIPTED_CAMERA",true)SetCamActive(e,true)end end local function i(j)if j==f then return end RenderScriptCams(j,false,0,true,true)f=j end local function k()i(false)if e and DoesCamExist(e)then DestroyCam(e,false)e=nil end end local function l(m,n,o,p)local q=math.rad(n.x)local r=math.rad(n.z)local s=o*math.cos(q)local t=o*math.sin(q)return m.x+s*math.sin(r),m.y-s*math.cos(r),m.z+p-t end local function m(n,o,p,q,r)if not DoesCamExist(e)then return end SetCamCoord(e,l(n,o,p,q))SetCamRot(e,o.x,o.y,o.z,2)SetCamFov(e,r)end local function n()local o=PlayerPedId()local p=GetEntityCoords(o,true)local q=GetGameplayCamRot(2)local r=GetFollowPedCamViewMode()if r==0 then SetFollowPedCamViewMode(1)r=1 end if r==4 then i(false)else h()i(true)local s=(r==1)and c.close or c.distance local t=(r==1)and c.close_h or c.height m(p,q,s,t,c.fov)end end local function o(p)local q=GetEntityCoords(p,true)local r=GetGameplayCamRot(2)local s=GetFollowVehicleCamViewMode()if s==0 then SetFollowVehicleCamViewMode(1)s=1 end if s==4 then i(false)else h()i(true)local t=(s==1)and d.close or d.distance local u=(s==1)and d.close_h or d.height m(q,r,t,u,GetGameplayCamFov())end end CreateThread(function()while true do Wait(0)if not g()then if e then k()end else local p=PlayerPedId()local q=GetVehiclePedIsIn(p,false)if q~=0 then o(q)else n()end end end end)AddEventHandler("onResourceStop",function(p)if p==GetCurrentResourceName()then k()end end)
+local PED_MODEL_NAME = "ped_name"
+local PED_MODEL_HASH = GetHashKey(PED_MODEL_NAME)
+
+local CAM_SETTINGS_PED = {
+    distance = 2.5,
+    close = 1.5,
+    height = -0.1,
+    close_height = -0.1,
+    fov = 70.0
+}
+
+local CAM_SETTINGS_VEHICLE = {
+    distance = 4.5,
+    close = 2.5,
+    height = 1.0,
+    close_height = 0.8
+}
+
+local cam = nil
+local camActive = false
+
+local function isTargetPed()
+    return GetEntityModel(PlayerPedId()) == PED_MODEL_HASH
+end
+
+local function ensureCam()
+    if not cam or not DoesCamExist(cam) then
+        cam = CreateCam("DEFAULT_SCRIPTED_CAMERA", true)
+        SetCamActive(cam, true)
+    end
+end
+
+local function setRenderScriptCams(state)
+    if state == camActive then
+        return
+    end
+    RenderScriptCams(state, false, 0, true, true)
+    camActive = state
+end
+
+local function destroyCam()
+    setRenderScriptCams(false)
+    if cam and DoesCamExist(cam) then
+        DestroyCam(cam, false)
+        cam = nil
+    end
+end
+
+local function calcCamCoord(pos, rot, distance, height)
+    local pitch = math.rad(rot.x)
+    local yaw = math.rad(rot.z)
+    local forward = distance * math.cos(pitch)
+    local vertical = distance * math.sin(pitch)
+
+    local offsetX = forward * math.sin(yaw)
+    local offsetY = -forward * math.cos(yaw)
+
+    return pos.x + offsetX, pos.y + offsetY, pos.z + height - vertical
+end
+
+local function updateCam(pos, rot, distance, height, fov)
+    if not DoesCamExist(cam) then
+        return
+    end
+    local cx, cy, cz = calcCamCoord(pos, rot, distance, height)
+    SetCamCoord(cam, cx, cy, cz)
+    SetCamRot(cam, rot.x, rot.y, rot.z, 2)
+    SetCamFov(cam, fov)
+end
+
+local function handleOnFoot()
+    local ped = PlayerPedId()
+    local pos = GetEntityCoords(ped, true)
+    local rot = GetGameplayCamRot(2)
+    local viewMode = GetFollowPedCamViewMode()
+
+    if viewMode == 0 then
+        SetFollowPedCamViewMode(1)
+        viewMode = 1
+    end
+
+    if viewMode == 4 then
+        setRenderScriptCams(false)
+    else
+        ensureCam()
+        setRenderScriptCams(true)
+        local distance = (viewMode == 1) and CAM_SETTINGS_PED.close or CAM_SETTINGS_PED.distance
+        local height = (viewMode == 1) and CAM_SETTINGS_PED.close_height or CAM_SETTINGS_PED.height
+        updateCam(pos, rot, distance, height, CAM_SETTINGS_PED.fov)
+    end
+end
+
+local function handleInVehicle(vehicle)
+    local pos = GetEntityCoords(vehicle, true)
+    local rot = GetGameplayCamRot(2)
+    local viewMode = GetFollowVehicleCamViewMode()
+
+    if viewMode == 0 then
+        SetFollowVehicleCamViewMode(1)
+        viewMode = 1
+    end
+
+    if viewMode == 4 then
+        setRenderScriptCams(false)
+    else
+        ensureCam()
+        setRenderScriptCams(true)
+        local distance = (viewMode == 1) and CAM_SETTINGS_VEHICLE.close or CAM_SETTINGS_VEHICLE.distance
+        local height = (viewMode == 1) and CAM_SETTINGS_VEHICLE.close_height or CAM_SETTINGS_VEHICLE.height
+        updateCam(pos, rot, distance, height, GetGameplayCamFov())
+    end
+end
+
+CreateThread(function()
+    while true do
+        Wait(0)
+        if not isTargetPed() then
+            if cam then
+                destroyCam()
+            end
+        else
+            local player = PlayerPedId()
+            local vehicle = GetVehiclePedIsIn(player, false)
+            if vehicle ~= 0 then
+                handleInVehicle(vehicle)
+            else
+                handleOnFoot()
+            end
+        end
+    end
+end)
+
+AddEventHandler("onResourceStop", function(resourceName)
+    if resourceName == GetCurrentResourceName() then
+        destroyCam()
+    end
+end)
