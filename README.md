@@ -1,4 +1,4 @@
-Piyo Camera Height Fix
+Piyo Camera Height Fix | FiveM
 
 Open source script to correct camera height for child peds. Free to use and available on GitHub and the Piyo Store. Place fxmanifest.lua and ped_config.lua in the resource root and update the ped name in PED_MODEL_NAME.
 
